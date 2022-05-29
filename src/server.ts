@@ -3,6 +3,7 @@ import http from 'http';
 import mongoose from 'mongoose';
 import { config } from './config/config';
 import Logging from './libs/Logging';
+import Routes from './routes';
 
 const router = express();
 
@@ -23,17 +24,22 @@ const startServer = () => {
 
     router.use((req, res, next) => {
         /** Request*/
-        Logging.info(`request => Method: ${req.method} | URL: ${req.url} | IP:[${req.socket.remoteAddress}]`);
+        Logging.info(
+            `request => Method: ${req.method} | URL: ${req.url} | IP:[${req.socket.remoteAddress}]`
+        );
 
         /** Response */
         res.on('finish', () => {
-            Logging.info(`request => Method: ${req.method} | URL: ${req.url} | IP:[${req.socket.remoteAddress}] | status: ${req.statusCode}`);
+            Logging.info(
+                `request => Method: ${req.method} | URL: ${req.url} | IP:[${req.socket.remoteAddress}] | status: ${req.statusCode}`
+            );
         });
 
         next();
     });
 
     /** Routes */
+    router.use(Routes);
 
     router.get('/status', (req, res, next) => res.status(200).json({ message: 'OK' }));
 
@@ -46,5 +52,7 @@ const startServer = () => {
         return res.status(404).json({ message: err.message });
     });
 
-    http.createServer(router).listen(config.server.port, () => Logging.info(`server is listening on port ${config.server.port}`));
+    http.createServer(router).listen(config.server.port, () =>
+        Logging.info(`server is listening on port ${config.server.port}`)
+    );
 };
